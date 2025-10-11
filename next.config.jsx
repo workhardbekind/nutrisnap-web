@@ -1,4 +1,3 @@
-// next.config.js (NOT .ts)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
