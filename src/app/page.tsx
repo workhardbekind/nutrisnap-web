@@ -161,10 +161,19 @@ export default function Home() {
 
   // Restart camera when facing mode changes
   useEffect(() => {
-    if (showCamera && videoRef.current) {
+    if (showCamera) {
       startCamera();
     }
   }, [facingMode]);
+
+  // Start camera when showCamera becomes true
+  useEffect(() => {
+    if (showCamera) {
+      startCamera();
+    } else {
+      stopCamera();
+    }
+  }, [showCamera]);
 
   // Camera View
   if (showCamera) {
@@ -190,6 +199,7 @@ export default function Home() {
                 ref={videoRef}
                 autoPlay
                 playsInline
+                muted
                 className="w-full h-full object-cover"
                 onLoadedMetadata={() => {
                   if (videoRef.current) {
