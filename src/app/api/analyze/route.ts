@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Call OpenAI Vision API
+    // Call OpenAI Vision API with enhanced nutritional analysis
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -31,26 +31,83 @@ export async function POST(request: NextRequest) {
           content: [
             {
               type: "text",
-              text: `Analyze this food image and provide a detailed nutritional breakdown. 
+              text: `Analyze this food image and provide a comprehensive nutritional breakdown. 
               
               Return ONLY a valid JSON object with this exact structure (no markdown, no code blocks):
               {
                 "foodName": "Name of the dish",
+                "servingSize": "Estimated serving size (e.g., '1 cup', '250g', '1 medium plate')",
                 "calories": number (total calories),
-                "protein": number (grams),
-                "carbs": number (grams),
-                "fats": number (grams),
-                "fiber": number (grams),
                 "healthScore": number (0-100, where 100 is healthiest),
-                "breakdown": [
-                  {"name": "Protein", "value": number, "unit": "g", "color": "#3b82f6"},
-                  {"name": "Carbs", "value": number, "unit": "g", "color": "#f59e0b"},
-                  {"name": "Fats", "value": number, "unit": "g", "color": "#ef4444"},
-                  {"name": "Fiber", "value": number, "unit": "g", "color": "#10b981"}
-                ]
+                "macronutrients": {
+                  "protein": {"value": number, "unit": "g", "dailyValue": number (percentage)},
+                  "carbohydrates": {"value": number, "unit": "g", "dailyValue": number},
+                  "totalFat": {"value": number, "unit": "g", "dailyValue": number},
+                  "saturatedFat": {"value": number, "unit": "g", "dailyValue": number},
+                  "unsaturatedFat": {"value": number, "unit": "g", "dailyValue": number},
+                  "transFat": {"value": number, "unit": "g", "dailyValue": number},
+                  "fiber": {"value": number, "unit": "g", "dailyValue": number},
+                  "sugar": {"value": number, "unit": "g", "dailyValue": number},
+                  "addedSugar": {"value": number, "unit": "g", "dailyValue": number}
+                },
+                "vitamins": {
+                  "vitaminA": {"value": number, "unit": "μg", "dailyValue": number},
+                  "vitaminC": {"value": number, "unit": "mg", "dailyValue": number},
+                  "vitaminD": {"value": number, "unit": "μg", "dailyValue": number},
+                  "vitaminE": {"value": number, "unit": "mg", "dailyValue": number},
+                  "vitaminK": {"value": number, "unit": "μg", "dailyValue": number},
+                  "vitaminB6": {"value": number, "unit": "mg", "dailyValue": number},
+                  "vitaminB12": {"value": number, "unit": "μg", "dailyValue": number},
+                  "thiamin": {"value": number, "unit": "mg", "dailyValue": number},
+                  "riboflavin": {"value": number, "unit": "mg", "dailyValue": number},
+                  "niacin": {"value": number, "unit": "mg", "dailyValue": number},
+                  "folate": {"value": number, "unit": "μg", "dailyValue": number}
+                },
+                "minerals": {
+                  "calcium": {"value": number, "unit": "mg", "dailyValue": number},
+                  "iron": {"value": number, "unit": "mg", "dailyValue": number},
+                  "magnesium": {"value": number, "unit": "mg", "dailyValue": number},
+                  "phosphorus": {"value": number, "unit": "mg", "dailyValue": number},
+                  "potassium": {"value": number, "unit": "mg", "dailyValue": number},
+                  "sodium": {"value": number, "unit": "mg", "dailyValue": number},
+                  "zinc": {"value": number, "unit": "mg", "dailyValue": number},
+                  "selenium": {"value": number, "unit": "μg", "dailyValue": number}
+                },
+                "other": {
+                  "cholesterol": {"value": number, "unit": "mg", "dailyValue": number},
+                  "caffeine": {"value": number, "unit": "mg", "dailyValue": null},
+                  "water": {"value": number, "unit": "g", "dailyValue": null},
+                  "alcohol": {"value": number, "unit": "g", "dailyValue": null},
+                  "omega3": {"value": number, "unit": "g", "dailyValue": null},
+                  "omega6": {"value": number, "unit": "g", "dailyValue": null}
+                },
+                "glycemicIndex": number (0-100, null if not applicable),
+                "glycemicLoad": number (null if not applicable),
+                "ingredients": ["List of identified main ingredients"],
+                "allergens": ["List of potential allergens"],
+                "dietaryTags": ["vegetarian", "vegan", "gluten-free", "dairy-free", "keto", "paleo", etc - only include applicable ones],
+                "healthBenefits": ["List of 3-5 key health benefits"],
+                "healthConcerns": ["List of any health concerns or warnings"],
+                "recommendations": {
+                  "portion": "Portion size recommendation",
+                  "frequency": "How often this could be consumed",
+                  "improvements": ["Suggestions to make this meal healthier"],
+                  "pairings": ["Foods that would complement this nutritionally"]
+                }
               }
               
-              Base the health score on: nutritional balance, whole foods vs processed, vegetable content, healthy fats, etc.`
+              Base the health score on: 
+              - Nutritional density and balance
+              - Whole foods vs processed foods
+              - Vegetable and fruit content
+              - Healthy vs unhealthy fats
+              - Added sugars and sodium levels
+              - Fiber content
+              - Overall contribution to a balanced diet
+              
+              Provide realistic estimates based on typical portions and ingredients visible in the image.
+              For values you cannot determine precisely, provide reasonable estimates based on similar foods.
+              Set null for any values that are truly not applicable.`
             },
             {
               type: "image_url",
@@ -61,7 +118,8 @@ export async function POST(request: NextRequest) {
           ],
         },
       ],
-      max_tokens: 500,
+      max_tokens: 2000,
+      temperature: 0.3, // Lower temperature for more consistent nutritional estimates
     });
 
     const content = response.choices[0].message.content;
@@ -78,6 +136,17 @@ export async function POST(request: NextRequest) {
     
   } catch (error: any) {
     console.error('Analysis error:', error);
+    
+    // If parsing failed, try to extract JSON from the response
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        { 
+          error: 'Failed to parse nutrition data',
+          details: 'Invalid response format from AI' 
+        },
+        { status: 500 }
+      );
+    }
     
     return NextResponse.json(
       { 
