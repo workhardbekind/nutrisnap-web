@@ -8,6 +8,9 @@ import {
   Zap, Droplet, Wheat, Apple, Fish, Pill, Shield,
   ChevronDown, ChevronUp, Check, AlertTriangle
 } from 'lucide-react';
+import LoginButton from "@/components/LoginButton";
+import { useSession, signIn } from "next-auth/react";
+import { createMealFromAnalysis } from "@/lib/mealClient";
 
 interface NutritionValue {
   value: number;
@@ -57,7 +60,7 @@ export default function Home() {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['macros']));
-  
+  const { status } = useSession();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -168,6 +171,20 @@ export default function Home() {
 
       const data = await response.json();
       setResult(data);
+      try {
+  if (status === "authenticated") {
+    await createMealFromAnalysis({
+      calories: data.calories,
+      protein: data.macronutrients?.protein?.value ?? 0,
+      carbs: data.macronutrients?.carbohydrates?.value ?? 0,
+      fat: data.macronutrients?.totalFat?.value ?? 0,
+      name: data.foodName,
+      notes: "Auto-logged from photo analysis",
+    });
+  }
+} catch (e) {
+  console.error("Auto meal save failed:", e);
+}
     } catch (error) {
       console.error('Analysis failed:', error);
       alert('Failed to analyze image. Please try again.');
@@ -299,6 +316,10 @@ export default function Home() {
   if (!selectedImage && !result) {
     return (
       <main className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
+    <h1 className="text-2xl font-semibold text-white">NutriSnap</h1>
+    <LoginButton />
+  </div>
         <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center min-h-screen">
           <div className="bg-white w-24 h-24 rounded-full flex items-center justify-center mb-8 shadow-xl">
             <Camera size={48} className="text-indigo-500" />
