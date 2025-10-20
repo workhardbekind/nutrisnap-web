@@ -1,10 +1,8 @@
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth";
-
-// Optional one-time debug to prove it's defined:
-// console.log("authOptions is defined:", !!authOptions);
+import { authOptions } from "@/lib/auth"; // or correct relative path
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
