@@ -318,7 +318,7 @@ export default function Home() {
       <main className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
         <div className="container mx-auto px-4 py-6 flex items-center justify-between">
     <h1 className="text-2xl font-semibold text-white">NutriSnap</h1>
-    <LoginButton />
+    
   </div>
         <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center min-h-screen">
           <div className="bg-white w-24 h-24 rounded-full flex items-center justify-center mb-8 shadow-xl">
