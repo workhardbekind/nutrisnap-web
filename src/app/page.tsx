@@ -8,7 +8,7 @@ import {
   Zap, Droplet, Wheat, Apple, Fish, Pill, Shield,
   ChevronDown, ChevronUp, Check, AlertTriangle
 } from 'lucide-react';
-import LoginButton from "@/components/LoginButton";
+//import LoginButton from "@/components/LoginButton";
 import { useSession, signIn } from "next-auth/react";
 import { createMealFromAnalysis } from "@/lib/mealClient";
 
