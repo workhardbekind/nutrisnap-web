@@ -359,7 +359,7 @@ export default function Home() {
           <div className="mt-12 bg-white/10 backdrop-blur rounded-2xl p-6 max-w-md">
             <p className="text-white text-center text-sm">
               📸 For best results, capture the entire meal in good lighting
-            </p><p className="text-white text-center text-sm">🎵 Made by <a href="https://github.com/workhardbekind/nutrisnap-web">workhardbekind</a>  💨</p><p className="text-white text-center text-sm"><a href="https://ko-fi.com/districtdave">Buy Dave a Coffee</a></p>
+            </p><p className="text-white text-center text-sm">&nbsp;</p><p className="text-white text-center text-sm">🎵 Made by <a href="https://github.com/workhardbekind/nutrisnap-web">workhardbekind</a>  💨</p><p className="text-white text-center text-sm">&nbsp;</p><p className="text-white text-center text-sm"><a href="https://ko-fi.com/districtdave">Buy Dave a Coffee</a></p>
           </div>
         </div>
       </main>
