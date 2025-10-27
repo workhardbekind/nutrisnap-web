@@ -5,7 +5,8 @@ import { Alert } from 'react-native';
 import { getItem, setItem, deleteItem } from '../utils/storage';
 
 const BACKEND_BASE = 'https://nutrisnap.workhardbekind.com';
-const GITHUB_CLIENT_ID = 'Ov23lioaDXtNM7gAMYfz';
+// Replace with your Google OAuth Client ID (for the mobile app)
+const GOOGLE_CLIENT_ID = '119993777591-to7tf5tpqiov0310vvd4e549ua2jqlhl.apps.googleusercontent.com';
 
 type User = { id: string; name?: string | null; email?: string | null; image?: string | null } | null;
 
@@ -54,18 +55,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // ignore
       }
       const discovery = {
-        authorizationEndpoint: 'https://github.com/login/oauth/authorize',
-        tokenEndpoint: 'https://github.com/login/oauth/access_token',
+        authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+        tokenEndpoint: 'https://oauth2.googleapis.com/token',
       } as const;
 
-      const authRequest = new AuthSession.AuthRequest({ clientId: GITHUB_CLIENT_ID, scopes: ['read:user', 'user:email'], redirectUri });
-      const result = await authRequest.promptAsync(discovery, { useProxy: true });
+      const authRequest = new AuthSession.AuthRequest({ clientId: GOOGLE_CLIENT_ID, scopes: ['openid', 'profile', 'email'], redirectUri });
+      // cast options to any because some expo-auth-session types don't include useProxy
+      const result = await (authRequest as any).promptAsync(discovery, { useProxy: true } as any);
       if (result.type === 'success' && (result as any).params?.code) {
         const code = (result as any).params.code;
         const resp = await fetch(`${BACKEND_BASE}/api/auth/mobile-exchange`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, redirectUri }),
+          body: JSON.stringify({ code, redirectUri, provider: 'google' }),
         });
 
         if (!resp.ok) {
