@@ -45,8 +45,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   async function signIn() {
     try {
-  const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
-  console.log('redirectUri', redirectUri);
+      const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
+      console.log('redirectUri', redirectUri);
+      // show the redirectUri in an alert so non-dev users can copy it for GitHub app settings
+      try {
+        Alert.alert('Redirect URI', redirectUri);
+      } catch (e) {
+        // ignore
+      }
       const discovery = {
         authorizationEndpoint: 'https://github.com/login/oauth/authorize',
         tokenEndpoint: 'https://github.com/login/oauth/access_token',
