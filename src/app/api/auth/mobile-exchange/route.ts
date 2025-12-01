@@ -81,8 +81,10 @@ export async function POST(req: Request) {
       profile = await userRes.json();
     }
 
-    if (!profile || !profile.id) {
-      return NextResponse.json({ error: 'Failed fetching GitHub profile' }, { status: 400 });
+    // some providers (Google) return `sub` instead of `id`
+    const profileId = (profile && (profile.id ?? profile.sub)) ?? null;
+    if (!profile || !profileId) {
+      return NextResponse.json({ error: 'Failed fetching provider profile' }, { status: 400 });
     }
 
     // Upsert user in DB by email if available, else by provider id

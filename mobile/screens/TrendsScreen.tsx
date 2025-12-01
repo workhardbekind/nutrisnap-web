@@ -1,11 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { ThemedText, Spacer } from '@/components/ui';
 
 export default function TrendsScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Trends</Text>
-      <Text>Charts and trends will be available here.</Text>
+      <ThemedText variant="title" style={styles.title}>
+        Trends
+      </ThemedText>
+      <Spacer size={8} />
+      <ThemedText>Charts and trends will be available here.</ThemedText>
     </View>
   );
 }

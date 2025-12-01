@@ -1,26 +1,56 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
-import { useAuth } from '../context/AuthContext';
+import { SafeAreaView, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { ThemedText, Spacer } from '@/components/ui';
 
 export default function DashboardScreen() {
-  const { user, signIn, signOut } = useAuth();
+  // auth removed for mobile; no-op UI
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Dashboard</Text>
-      {!user ? (
+    <SafeAreaView style={styles.safe}>
+      <View style={styles.container}>
+        <ThemedText variant="title" style={styles.title}>
+          Dashboard
+        </ThemedText>
+
         <>
-          <Text style={{ marginBottom: 8 }}>You are not signed in.</Text>
-          <Button title="Sign in with GitHub" onPress={() => signIn()} />
+          <ThemedText variant="subtitle" style={styles.subtitle}>
+            Welcome to NutriSnap mobile.
+          </ThemedText>
+          <Spacer size={8} />
+          <TouchableOpacity style={styles.primaryButton} onPress={() => {}} accessibilityRole="button">
+            <ThemedText variant="subtitle" style={styles.primaryButtonText}>
+              Open settings
+            </ThemedText>
+          </TouchableOpacity>
         </>
-      ) : (
-        <>
-          <Text style={{ marginBottom: 8 }}>Welcome back, {user.name ?? user.email}</Text>
-          <Button title="Sign out" onPress={() => signOut()} />
-        </>
-      )}
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({ container: { flex: 1, padding: 16 }, title: { fontSize: 20, fontWeight: '600', marginBottom: 8 } });
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: '#ffffff' },
+  container: { flex: 1, padding: 16 },
+  title: { fontSize: 20, fontWeight: '700', marginBottom: 12 },
+  subtitle: { marginBottom: 12, color: '#333' },
+  primaryButton: {
+    backgroundColor: '#1e90ff',
+    paddingVertical: 14,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  primaryButtonText: { color: '#fff', fontWeight: '700' },
+  secondaryButton: {
+    marginTop: 8,
+    paddingVertical: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    width: '50%',
+  },
+  secondaryButtonText: { color: '#333' },
+});
